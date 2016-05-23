@@ -34,7 +34,7 @@
     "preact": "*"
   },
   "devDependencies": {
-    "babel": "^5.8.23",
+    "babel": "^6.5.0",
     "babel-eslint": "^6.0.0",
     "chai": "^3.5.0",
     "eslint": "^2.2.0",
