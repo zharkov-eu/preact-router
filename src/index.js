@@ -156,7 +156,7 @@ class Router extends Component {
 			customHistory = props.history;
 		}
 		if (props.urlRewrite) {
-			urlRewrite = props.urlRewrite
+			urlRewrite = props.urlRewrite;
 		}
 
 		this.state = {
