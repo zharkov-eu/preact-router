@@ -32,6 +32,7 @@ export interface RouterOnChangeArgs {
 
 export interface RouterProps extends RoutableProps {
     history?: CustomHistory;
+    urlRewrite?: (url: string) => string;
     static?: boolean;
     url?: string;
     onChange?: (args: RouterOnChangeArgs) => void;

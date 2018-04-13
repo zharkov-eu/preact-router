@@ -2,6 +2,7 @@ import { cloneElement, h, Component } from 'preact';
 import { exec, prepareVNodeForRanking, assign, pathRankSort } from './util';
 
 let customHistory = null;
+let urlRewrite = null;
 
 const ROUTERS = [];
 
@@ -88,6 +89,9 @@ function routeFromLink(node) {
 	// ignore links with targets and non-path URLs
 	if (!href || !href.match(/^\//g) || (target && !target.match(/^_?self$/i))) return;
 
+	// rewrite URL link if urlRewrite function provided
+	if (urlRewrite) href = urlRewrite(href);
+
 	// attempt to route, if no match simply cede control to browser
 	return route(href);
 }
@@ -150,6 +154,9 @@ class Router extends Component {
 		super(props);
 		if (props.history) {
 			customHistory = props.history;
+		}
+		if (props.urlRewrite) {
+			urlRewrite = props.urlRewrite
 		}
 
 		this.state = {
