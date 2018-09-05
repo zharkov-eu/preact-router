@@ -189,7 +189,6 @@ class Router extends Component {
 	}
 
 	componentWillMount() {
-		ROUTERS.push(this);
 		this.updating = true;
 	}
 
@@ -199,6 +198,7 @@ class Router extends Component {
 				this.routeTo(`${location.pathname || ''}${location.search || ''}`);
 			});
 		}
+		ROUTERS.push(this);
 		this.updating = false;
 	}
 

@@ -278,7 +278,6 @@ var Router = (function (Component$$1) {
 	};
 
 	Router.prototype.componentWillMount = function componentWillMount () {
-		ROUTERS.push(this);
 		this.updating = true;
 	};
 
@@ -290,6 +289,7 @@ var Router = (function (Component$$1) {
 				this$1.routeTo(("" + (location.pathname || '') + (location.search || '')));
 			});
 		}
+		ROUTERS.push(this);
 		this.updating = false;
 	};
 
