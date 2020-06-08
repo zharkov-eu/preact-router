@@ -1,4 +1,4 @@
-import { cloneElement, h, Component } from 'preact';
+import { cloneElement, createElement, Component, toChildArray } from 'preact';
 import { exec, prepareVNodeForRanking, assign, pathRankSort } from './util';
 
 let customHistory = null;
@@ -9,10 +9,6 @@ const ROUTERS = [];
 const subscribers = [];
 
 const EMPTY = {};
-
-function isPreactElement(node) {
-	return node.__preactattr_!=null || typeof Symbol!=='undefined' && node[Symbol.for('preactattr')]!=null;
-}
 
 function setUrl(url, type='push') {
 	if (customHistory && customHistory[type]) {
@@ -98,10 +94,9 @@ function routeFromLink(node) {
 
 
 function handleLinkClick(e) {
-	if (e.button==0) {
-		routeFromLink(e.currentTarget || e.target || this);
-		return prevent(e);
-	}
+	if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || e.button!==0) return;
+	routeFromLink(e.currentTarget || e.target || this);
+	return prevent(e);
 }
 
 
@@ -121,7 +116,7 @@ function delegateLinkHandler(e) {
 
 	let t = e.target;
 	do {
-		if (String(t.nodeName).toUpperCase()==='A' && t.getAttribute('href') && isPreactElement(t)) {
+		if (String(t.nodeName).toUpperCase()==='A' && t.getAttribute('href')) {
 			if (t.hasAttribute('native')) return;
 			// if link is handled by the router, prevent browser defaults
 			if (routeFromLink(t)) {
@@ -173,19 +168,20 @@ class Router extends Component {
 
 	/** Check if the given URL can be matched against any children */
 	canRoute(url) {
-		return this.getMatchingChildren(this.props.children, url, false).length > 0;
+		const children = toChildArray(this.props.children);
+		return this.getMatchingChildren(children, url, false).length > 0;
 	}
 
 	/** Re-render children with a new URL to match against. */
 	routeTo(url) {
-		this._didRoute = false;
 		this.setState({ url });
 
-		// if we're in the middle of an update, don't synchronously re-route.
-		if (this.updating) return this.canRoute(url);
+		const didRoute = this.canRoute(url);
 
-		this.forceUpdate();
-		return this._didRoute;
+		// trigger a manual re-route if we're not in the middle of an update:
+		if (!this.updating) this.forceUpdate();
+
+		return didRoute;
 	}
 
 	componentWillMount() {
@@ -220,7 +216,7 @@ class Router extends Component {
 			.filter(prepareVNodeForRanking)
 			.sort(pathRankSort)
 			.map( vnode => {
-				let matches = exec(url, vnode.attributes.path, vnode.attributes);
+				let matches = exec(url, vnode.props.path, vnode.props);
 				if (matches) {
 					if (invoke !== false) {
 						let newProps = { url, matches };
@@ -235,10 +231,9 @@ class Router extends Component {
 	}
 
 	render({ children, onChange }, { url }) {
-		let active = this.getMatchingChildren(children, url, true);
+		let active = this.getMatchingChildren(toChildArray(children), url, true);
 
 		let current = active[0] || null;
-		this._didRoute = !!current;
 
 		let previous = this.previousUrl;
 		if (url!==previous) {
@@ -259,17 +254,10 @@ class Router extends Component {
 }
 
 const Link = (props) => (
-	h('a', assign({ onClick: handleLinkClick }, props))
+	createElement('a', assign({ onClick: handleLinkClick }, props))
 );
 
-const Route = props => h(props.component, props);
+const Route = props => createElement(props.component, props);
 
-Router.subscribers = subscribers;
-Router.getCurrentUrl = getCurrentUrl;
-Router.route = route;
-Router.Router = Router;
-Router.Route = Route;
-Router.Link = Link;
-
-export { subscribers, getCurrentUrl, route, Router, Route, Link };
+export { subscribers, getCurrentUrl, route, Router, Route, Link, exec };
 export default Router;

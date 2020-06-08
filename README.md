@@ -1,6 +1,6 @@
 # preact-router
 
-[![NPM](http://img.shields.io/npm/v/preact-router.svg)](https://www.npmjs.com/package/preact-router)
+[![NPM](https://img.shields.io/npm/v/preact-router.svg)](https://www.npmjs.com/package/preact-router)
 [![travis-ci](https://travis-ci.org/developit/preact-router.svg)](https://travis-ci.org/developit/preact-router)
 
 Connect your [Preact] components up to that address bar.
@@ -9,9 +9,9 @@ Connect your [Preact] components up to that address bar.
 
 > 💁 **Note:** This is not a preact-compatible version of React Router. `preact-router` is a simple URL wiring and does no orchestration for you.
 >
-> If you're looking for more complex solutions like nested routes and view composition, [react-router](https://github.com/ReactTraining/react-router) works great with preact as long as you alias in [preact-compat](https://github.com/developit/preact-compat).  React Router 4 even [works directly with Preact](http://codepen.io/developit/pen/BWxepY?editors=0010), no compatibility layer needed!
+> If you're looking for more complex solutions like nested routes and view composition, [react-router](https://github.com/ReactTraining/react-router) works great with preact as long as you alias in [preact/compat](https://preactjs.com/guide/v10/getting-started#aliasing-react-to-preact).
 
-#### [See a Real-world Example :arrow_right:](http://jsfiddle.net/developit/qc73v9va/)
+#### [See a Real-world Example :arrow_right:](https://jsfiddle.net/developit/qc73v9va/)
 
 
 ---
@@ -150,11 +150,11 @@ This can be accomplished by adding a `native` boolean attribute to any link:
 <a href="/foo" native>Foo</a>
 ```
 
-### Detecting Route Chnages
+### Detecting Route Changes
 
 The `Router` notifies you when a change event occurs for a route with the `onChange` callback:
 
-```
+```js
 import { render, Component } from 'preact';
 import { Router, route } from 'preact-router';
 
@@ -163,22 +163,22 @@ class App extends Component {
   // some method that returns a promise
   isAuthenticated() { }
 
-  async handleRoute = e => {
-    switch(e.path) {
+  handleRoute = async e => {
+    switch (e.url) {
       case '/profile':
-        const isAuthed == await this.isAuthenticated();
-	if(!isAuthed) route('/', true);
-      	break;
+        const isAuthed = await this.isAuthenticated();
+        if (!isAuthed) route('/', true);
+        break;
     }
-  }
+  };
 
   render() {
     return (
-      <Router onChange={this.handleRoute.bind(this)}>
+      <Router onChange={this.handleRoute}>
         <Home path="/" />
         <Profile path="/profile" />
       </Router>
-    );  
+    );
   }
 
 }
@@ -220,7 +220,7 @@ It's possible to use alternative history bindings, like `/#!/hash-history`:
 ```js
 import { h } from 'preact';
 import Router from 'preact-router';
-import createHashHistory from 'history/createHashHistory';
+import { createHashHistory } from 'history';
 
 const Main = () => (
     <Router history={createHashHistory()}>
@@ -233,6 +233,17 @@ const Main = () => (
 render(<Main />, document.body);
 ```
 
+### Programmatically Triggering Route
+
+Its possible to programmatically trigger a route to a page (like `window.location = '/page-2'`)
+
+```js
+import { route } from 'preact-router';
+
+route('/page-2')  // appends a history entry
+
+route('/page-3', true)  // replaces the current history entry
+```
 
 ### License
 
@@ -240,4 +251,4 @@ render(<Main />, document.body);
 
 
 [Preact]: https://github.com/developit/preact
-[MIT]: http://choosealicense.com/licenses/mit/
+[MIT]: https://choosealicense.com/licenses/mit/
